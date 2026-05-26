@@ -28,4 +28,4 @@ export const MOCK_WEEKLY_REPORT: AIWeeklyReportResponse = {
   summary: "이번 주에는 학부모 상담과 행정 업무가 겹치며 정서 온도가 지난주보다 0.6도 하락했습니다. 다행히 주말을 지나며 회복 신호가 보이고 있으니, 다음 주에는 나를 위한 5분 루틴을 조금 더 챙겨보세요.",
   insight: "상담 주간의 스트레스가 누적된 상태입니다.",
   recommendation: "심호흡 루틴 및 숲길 걷기"
-};
+};

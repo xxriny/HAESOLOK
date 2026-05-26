@@ -52,8 +52,8 @@ export default function ComplaintsPage() {
                     </span>
                     <span className="text-[10px] text-[#999999]">{record.date}</span>
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded border ${record.status === "가이드 생성됨" ? "bg-[#EFFFF0] text-[#58C85A] border-[#8EEA7A]" : "bg-neutral-50 text-neutral-500 border-neutral-200"}`}>
-                    {record.status === "가이드 생성됨" ? "AI 가이드 완료" : "기록 완료"}
+                  <span className={`text-[10px] font-bold px-2 py-1 rounded border ${record.status === "AI 가이드 생성됨" ? "bg-[#EFFFF0] text-[#58C85A] border-[#8EEA7A]" : "bg-neutral-50 text-neutral-500 border-neutral-200"}`}>
+                    {record.status === "AI 가이드 생성됨" ? "AI 가이드 완료" : "기록 완료"}
                   </span>
                 </div>
                 <h3 className="font-bold text-[#222222] mb-1 line-clamp-1 text-sm">{record.content}</h3>
@@ -70,4 +70,4 @@ export default function ComplaintsPage() {
       </div>
     </PageContainer>
   );
-}
+}

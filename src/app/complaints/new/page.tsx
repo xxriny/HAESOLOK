@@ -3,12 +3,13 @@
 import { PageContainer } from "@/components/layout/PageContainer";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SoftCard } from "@/components/cards/SoftCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { saveComplaint } from "@/lib/storage";
+import { saveComplaint, getProfile } from "@/lib/storage";
 import { PersonType, ComplaintRecord } from "@/types/complaint";
+import { TeacherProfile } from "@/types/teacher";
 import { cn } from "@/lib/utils";
-import { Info } from "lucide-react";
+import { Info, CheckCircle } from "lucide-react";
 
 export default function NewComplaintPage() {
   const router = useRouter();
@@ -19,6 +20,48 @@ export default function NewComplaintPage() {
   const [content, setContent] = useState("");
   const [isScheduleRelated, setIsScheduleRelated] = useState(false);
   const [memo, setMemo] = useState("");
+
+  // NEIS 연동 상태
+  const [profile, setProfile] = useState<TeacherProfile | null>(null);
+  const [todaySchedules, setTodaySchedules] = useState<string[]>([]);
+  const [isScheduleReal, setIsScheduleReal] = useState(false);
+
+  // 프로필 로드 + 오늘 학사일정 조회
+  useEffect(() => {
+    const savedProfile = getProfile();
+    setProfile(savedProfile);
+
+    if (savedProfile?.educationOfficeCode && savedProfile?.schoolCode) {
+      const targetDate = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      fetch("/api/neis/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          educationOfficeCode: savedProfile.educationOfficeCode,
+          schoolCode: savedProfile.schoolCode,
+          date: targetDate,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.schedules && data.schedules.length > 0) {
+            setTodaySchedules(data.schedules.map((s: { EVENT_NM: string }) => s.EVENT_NM));
+            setIsScheduleReal(true);
+          } else {
+            setTodaySchedules(["오늘 등록된 학사 일정 없음"]);
+            setIsScheduleReal(true);
+          }
+        })
+        .catch(() => {
+          setTodaySchedules(["학사일정 조회 실패 (Mock 데이터 사용)"]);
+          setIsScheduleReal(false);
+        });
+    } else {
+      // 학교 미등록 시 Mock
+      setTodaySchedules(["학부모 상담 주간 (예시)"]);
+      setIsScheduleReal(false);
+    }
+  }, []);
 
   const handleSubmit = () => {
     if (!content.trim()) return;
@@ -31,13 +74,16 @@ export default function NewComplaintPage() {
       content,
       academicScheduleRelated: isScheduleRelated,
       memo,
-      status: "기록 완료",
+      status: "기록됨",
       publicDataContext: {
-        schoolLevel: "초등학교",
-        schedule: "1학기 학부모 상담 주간",
+        schoolLevel: profile?.schoolLevel ?? "초등학교",
+        region: profile?.region,
+        schoolName: profile?.schoolName,
+        schedule: todaySchedules.join(", "),
         scale: "중대형 학교",
-        policyKeywords: ["생활지도", "교권보호", "학부모 응대"]
-      }
+        policyKeywords: ["생활지도", "교권보호", "학부모 응대"],
+        isRealSchedule: isScheduleReal,
+      },
     };
 
     saveComplaint(record);
@@ -133,13 +179,41 @@ export default function NewComplaintPage() {
           </div>
         </SoftCard>
 
+        {/* 자동 첨부 공공데이터 맥락 */}
         <SoftCard className="bg-[#F7FFF4] border-[#E5F5E1]">
           <div className="flex items-center gap-2 mb-3">
             <Info size={16} className="text-[#58C85A]" />
             <h3 className="font-bold text-[#222222] text-sm">자동 첨부되는 공공데이터 맥락</h3>
           </div>
+
+          {/* 학사일정 (NEIS 실시간) */}
+          <div className="mb-3">
+            <div className="flex items-center gap-1.5 mb-1">
+              {isScheduleReal
+                ? <CheckCircle size={12} className="text-[#58C85A]" />
+                : <Info size={12} className="text-[#999999]" />
+              }
+              <span className="text-[11px] font-bold text-[#555555]">
+                오늘의 학사일정
+                {isScheduleReal
+                  ? <span className="ml-1 text-[#58C85A]">(나이스 실시간)</span>
+                  : <span className="ml-1 text-[#999999]">(예시 데이터)</span>
+                }
+              </span>
+            </div>
+            <div className="pl-5 space-y-0.5">
+              {todaySchedules.map((s, i) => (
+                <p key={i} className="text-[11px] text-[#777777]">• {s}</p>
+              ))}
+            </div>
+            {!isScheduleReal && (
+              <p className="text-[10px] text-[#BBBBBB] mt-1 pl-5">
+                온보딩에서 학교를 등록하면 실제 학사일정이 표시됩니다.
+              </p>
+            )}
+          </div>
+
           <ul className="text-[11px] text-[#777777] space-y-1.5 list-disc list-inside ml-1">
-            <li>당일 학사일정 (나이스 API)</li>
             <li>학교 규모 및 환경 현황 (학교알리미)</li>
             <li>관련 교육 정책 및 법령 가이드 (교육데이터맵)</li>
           </ul>
@@ -148,7 +222,6 @@ export default function NewComplaintPage() {
         <p className="text-[10px] text-center text-[#999999] mt-4 leading-relaxed">
           저장된 내용은 AI 민원 대응 가이드 생성을 위한<br />참고 정보로만 사용되며 외부로 유출되지 않습니다.
         </p>
-
       </div>
 
       <div className="fixed bottom-0 left-0 w-full max-w-[430px] p-4 bg-white border-t border-[#E5F5E1] left-1/2 -translate-x-1/2 pb-8">
@@ -162,4 +235,4 @@ export default function NewComplaintPage() {
       </div>
     </PageContainer>
   );
-}
+}
