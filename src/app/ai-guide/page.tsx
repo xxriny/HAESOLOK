@@ -42,83 +42,83 @@ export default function AIGuidePage() {
   const { classification, riskLevel, principles, draftResponse, nextActions, usedPublicData } = guide;
 
   return (
-    <PageContainer className="bg-[#F7FFF4]">
+    <PageContainer className="bg-secondary">
       <AppHeader title="AI 민원 대응 가이드" showBack />
 
       <div className="p-4 space-y-6 pb-24">
-        <div className="flex items-start gap-2 text-xs text-[#777777] bg-white p-3 rounded-xl border border-[#E5F5E1] shadow-sm">
-          <Info size={16} className="shrink-0 mt-0.5 text-[#58C85A]" />
+        <div className="flex items-start gap-2 text-xs text-muted-foreground bg-white p-3 rounded-xl border border-border shadow-sm">
+          <Info size={16} className="shrink-0 mt-0.5 text-primary" />
           <p className="leading-relaxed">
             본 결과는 참고용 대응 가이드이며 법률 자문이 아닙니다. 필요한 경우 관리자 보고 및 교권보호위원회 지원을 요청하십시오.
           </p>
         </div>
 
         {isFallback && (
-          <div className="text-[10px] text-center text-[#999999] bg-neutral-50 border border-neutral-200 rounded-lg py-2">
+          <div className="text-[10px] text-center text-muted-foreground bg-neutral-50 border border-neutral-200 rounded-lg py-2">
             현재 화면은 예시 데이터(Fallback)로 표시됩니다.
           </div>
         )}
 
         <div className="flex gap-3">
-          <SoftCard className="flex-1 bg-white border-[#E5F5E1] py-3">
-            <div className="text-[10px] text-[#777777] font-bold mb-1">민원 유형</div>
-            <div className="text-sm font-bold text-[#222222]">{classification}</div>
+          <SoftCard className="flex-1 bg-white border-border py-3">
+            <div className="text-[10px] text-muted-foreground font-bold mb-1">민원 유형</div>
+            <div className="text-sm font-bold text-foreground">{classification}</div>
           </SoftCard>
-          <SoftCard className="flex-1 bg-white border-[#E5F5E1] py-3">
-            <div className="text-[10px] text-[#777777] font-bold mb-1">대응 위험도</div>
+          <SoftCard className="flex-1 bg-white border-border py-3">
+            <div className="text-[10px] text-muted-foreground font-bold mb-1">대응 위험도</div>
             <div className="flex items-center gap-1">
               <AlertTriangle size={14} className="text-amber-500" />
-              <div className="text-sm font-bold text-[#222222]">{riskLevel === "high" ? "높음" : riskLevel === "medium" ? "보통" : "낮음" }</div>
+              <div className="text-sm font-bold text-foreground">{riskLevel}</div>
             </div>
           </SoftCard>
         </div>
 
         <SoftCard>
           <div className="flex items-center gap-2 mb-3">
-            <ShieldCheck size={18} className="text-[#58C85A]" />
-            <h2 className="font-bold text-[#222222]">대응 원칙</h2>
+            <ShieldCheck size={18} className="text-primary" />
+            <h2 className="font-bold text-foreground">대응 원칙</h2>
           </div>
           <ul className="space-y-2">
             {principles.map((principle, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm text-[#555555]">
-                <span className="text-[#8EEA7A] mt-0.5 font-bold">•</span>
+              <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <span className="text-primary mt-0.5 font-bold">•</span>
                 {principle}
               </li>
             ))}
           </ul>
         </SoftCard>
 
-        <SoftCard className="border-[#8EEA7A] bg-[#EFFFF0]/50 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-[#58C85A]" />
-          <h2 className="font-bold text-[#222222] mb-3 ml-2">답변 초안 (참고용)</h2>
-          <div className="bg-white p-4 rounded-xl text-sm text-[#222222] leading-relaxed border border-[#E5F5E1] ml-2">
+        <SoftCard className="border-primary bg-secondary/50 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+          <h2 className="font-bold text-foreground mb-3 ml-2">답변 초안 (참고용)</h2>
+          <div className="bg-white p-4 rounded-xl text-sm text-foreground leading-relaxed border border-border ml-2">
             {draftResponse}
           </div>
         </SoftCard>
 
         <SoftCard>
           <div className="flex items-center gap-2 mb-3">
-            <CheckSquare size={18} className="text-[#222222]" />
-            <h2 className="font-bold text-[#222222]">다음 행동 체크리스트</h2>
+            <CheckSquare size={18} className="text-foreground" />
+            <h2 className="font-bold text-foreground">다음 행동 체크리스트</h2>
           </div>
           <div className="space-y-3">
             {nextActions.map((action, index) => (
               <label key={index} className="flex items-start gap-3 cursor-pointer group">
-                <input className="mt-0.5 w-4 h-4 rounded border-[#E5F5E1] text-[#58C85A] focus:ring-[#58C85A]" type="checkbox" />
-                <span className="text-sm text-[#555555] group-hover:text-[#222222] transition-colors">{action}</span>
+                <input className="mt-0.5 w-4 h-4 rounded border-border text-primary focus:ring-primary" type="checkbox" />
+                <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{action}</span>
               </label>
             ))}
           </div>
         </SoftCard>
 
-        <div className="pt-4 border-t border-[#E5F5E1]">
+        <div className="pt-4 border-t border-border">
           <div className="flex items-center gap-2 mb-3 px-1">
-            <Database size={16} className="text-[#777777]" />
-            <h3 className="font-bold text-sm text-[#777777]">참고한 공공데이터 맥락</h3>
+            <Database size={16} className="text-muted-foreground" />
+            <h3 className="font-bold text-sm text-muted-foreground">참고한 공공데이터 맥락</h3>
           </div>
           <div className="flex flex-wrap gap-2 px-1">
             {usedPublicData.map((data, index) => (
-              <span key={index} className="text-[10px] bg-white border border-[#E5F5E1] text-[#555555] px-2 py-1 rounded-md">
+              <span key={index} className="text-[10px] bg-white border border-border text-muted-foreground px-2 py-1 rounded-md">
                 {data}
               </span>
             ))}
@@ -127,4 +127,4 @@ export default function AIGuidePage() {
       </div>
     </PageContainer>
   );
-}
+}

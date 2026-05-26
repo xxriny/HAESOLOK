@@ -44,7 +44,7 @@ export default function CarePage() {
   }[status];
 
   const statusColor = {
-    stable: "text-[#58C85A] bg-[#EFFFF0] border-[#E5F5E1]",
+    stable: "text-primary bg-secondary border-border",
     caution: "text-amber-600 bg-amber-50 border-amber-200",
     support_needed: "text-rose-500 bg-rose-50 border-rose-200"
   }[status];
@@ -57,10 +57,10 @@ export default function CarePage() {
 
         {/* Title */}
         <div>
-          <h1 className="text-2xl font-bold text-[#222222] mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             {status === "stable" ? "선생님의 마음은 지금 평온한 상태예요." : "선생님, 지금은 나를 조금 더 돌봐야 할 때예요."}
           </h1>
-          <p className="text-[#555555]">
+          <p className="text-muted-foreground">
             최근 선생님의 정서 기록을 바탕으로 분석한 맞춤형 케어 가이드입니다.
           </p>
         </div>
@@ -71,12 +71,12 @@ export default function CarePage() {
             <StatusIcon size={28} />
           </div>
           <div className="flex-1">
-            <h2 className="text-sm text-[#777777] font-medium mb-1">나의 현재 상태</h2>
-            <div className="text-xl font-bold text-[#222222] mb-3">{statusLabel}</div>
+            <h2 className="text-sm text-muted-foreground font-medium mb-1">나의 현재 상태</h2>
+            <div className="text-xl font-bold text-foreground mb-3">{statusLabel}</div>
             <div className="space-y-1.5">
               {reasons.map((r, i) => (
-                <div key={i} className="text-sm text-[#555555] flex items-start gap-1.5">
-                  <span className="text-[#8EEA7A] mt-0.5">•</span>
+                <div key={i} className="text-sm text-muted-foreground flex items-start gap-1.5">
+                  <span className="text-primary mt-0.5">•</span>
                   <span>{r}</span>
                 </div>
               ))}
@@ -86,15 +86,15 @@ export default function CarePage() {
 
         {/* Level 1 micro-care */}
         <div>
-          <h2 className="text-lg font-bold text-[#222222] mb-3 px-1">지금 바로 할 수 있는 5분 케어</h2>
+          <h2 className="text-lg font-bold text-foreground mb-3 px-1">지금 바로 할 수 있는 5분 케어</h2>
           <div className="grid gap-3">
             {MOCK_CARE_CONTENTS.map(care => (
-              <SoftCard key={care.id} className="flex justify-between items-center group cursor-pointer hover:border-[#8EEA7A]">
+              <SoftCard key={care.id} className="flex justify-between items-center group cursor-pointer hover:border-primary">
                 <div>
-                  <h3 className="font-bold text-[#222222] text-sm mb-1">{care.title}</h3>
-                  <p className="text-xs text-[#777777] line-clamp-1">{care.description}</p>
+                  <h3 className="font-bold text-foreground text-sm mb-1">{care.title}</h3>
+                  <p className="text-xs text-muted-foreground line-clamp-1">{care.description}</p>
                 </div>
-                <div className="text-[10px] font-bold text-[#58C85A] bg-[#EFFFF0] px-2 py-1 rounded-md shrink-0">
+                <div className="text-[10px] font-bold text-primary bg-secondary px-2 py-1 rounded-md shrink-0">
                   {care.durationMinutes}분
                 </div>
               </SoftCard>
@@ -104,18 +104,18 @@ export default function CarePage() {
 
         {/* Level 2 counseling support */}
         {(status === "support_needed" || status === "caution") && (
-          <SoftCard className="border-[#FFD966] bg-amber-50/30">
-            <h3 className="font-bold text-[#222222] mb-2">전문가와의 상담이 필요하신가요?</h3>
-            <p className="text-sm text-[#555555] mb-4">
+          <SoftCard className="border-accent bg-amber-50/30">
+            <h3 className="font-bold text-foreground mb-2">전문가와의 상담이 필요하신가요?</h3>
+            <p className="text-sm text-muted-foreground mb-4">
               혼자 감당하기 버겁다면 전문 상담 기관의 도움을 받아보세요. 익명성이 보장되며 무료로 지원받을 수 있습니다.
             </p>
             {showCounseling ? (
               <div className="space-y-3 mt-4">
                 {MOCK_COUNSELING_CENTERS.map(center => (
-                  <div key={center.id} className="bg-white p-3 rounded-xl border border-[#E5F5E1]">
-                    <h4 className="font-bold text-sm text-[#222222]">{center.name}</h4>
-                    <p className="text-xs text-[#777777] mb-2 mt-0.5">{center.description}</p>
-                    <a href={`tel:${center.phone}`} className="text-[#58C85A] text-xs font-bold hover:underline">
+                  <div key={center.id} className="bg-white p-3 rounded-xl border border-border">
+                    <h4 className="font-bold text-sm text-foreground">{center.name}</h4>
+                    <p className="text-xs text-muted-foreground mb-2 mt-0.5">{center.description}</p>
+                    <a href={`tel:${center.phone}`} className="text-primary text-xs font-bold hover:underline">
                       상담 예약 및 기관 정보 보기
                     </a>
                   </div>
@@ -137,7 +137,7 @@ export default function CarePage() {
           </SoftCard>
         )}
 
-        <div className="flex items-start gap-1.5 text-[10px] text-[#999999] px-1 pt-4">
+        <div className="flex items-start gap-1.5 text-[10px] text-muted-foreground px-1 pt-4">
           <Info size={14} className="shrink-0 mt-0.5" />
           <p>
             해소록의 AI 요약과 케어 추천은 의료 진단이 아닌 셀프케어를 위한 참고 정보입니다. 심각한 정서적 위기 상황에서는 반드시 전문의의 진료를 받으시기 바랍니다.

@@ -19,7 +19,7 @@ export function BottomNav() {
   if (pathname === "/" || pathname === "/onboarding") return null;
 
   return (
-    <div className="sticky bottom-0 left-0 w-full bg-white border-t border-[#E5F5E1] pb-safe z-50">
+    <div className="sticky bottom-0 left-0 w-full bg-white border-t border-border pb-safe z-50">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const isActive = pathname === item.path || (item.path !== "/dashboard" && pathname.startsWith(item.path));
@@ -30,10 +30,10 @@ export function BottomNav() {
               onClick={() => router.push(item.path)}
               className={cn(
                 "flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors",
-                isActive ? "text-[#58C85A]" : "text-[#777777]"
+                isActive ? "text-primary" : "text-muted-foreground"
               )}
             >
-              <Icon size={20} className={cn("transition-colors", isActive ? "text-[#58C85A]" : "text-[#777777]")} />
+              <Icon size={20} className={cn("transition-colors", isActive ? "text-primary" : "text-muted-foreground")} />
               <span className="text-[10px] font-bold">{item.label}</span>
             </button>
           );

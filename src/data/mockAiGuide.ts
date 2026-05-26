@@ -2,9 +2,7 @@ import { AIGuideResponse, AIWeeklyReportResponse } from "../types/ai";
 
 export const MOCK_AI_GUIDE: AIGuideResponse = {
   classification: "생활지도 관련 민원",
-  riskLevel: "medium",
-  emotionEscalation: "medium",
-  summary: "학생의 생활지도 방식에 대해 학부모가 의문을 제기한 상황입니다.",
+  riskLevel: "보통",
   principles: [
     "감정적 대응을 자제하고 사실 중심으로 답변합니다.",
     "통화나 대면 상담 내용은 즉시 기록으로 남깁니다.",
@@ -26,6 +24,5 @@ export const MOCK_AI_GUIDE: AIGuideResponse = {
 
 export const MOCK_WEEKLY_REPORT: AIWeeklyReportResponse = {
   summary: "이번 주에는 학부모 상담과 행정 업무가 겹치며 정서 온도가 지난주보다 0.6도 하락했습니다. 다행히 주말을 지나며 회복 신호가 보이고 있으니, 다음 주에는 나를 위한 5분 루틴을 조금 더 챙겨보세요.",
-  insight: "상담 주간의 스트레스가 누적된 상태입니다.",
-  recommendation: "심호흡 루틴 및 숲길 걷기"
-};
+  recommendedCareType: "routine"
+};

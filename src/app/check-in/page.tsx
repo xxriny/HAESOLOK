@@ -59,11 +59,11 @@ export default function CheckInPage() {
   if (isSubmitted) {
     return (
       <PageContainer className="justify-center items-center p-6 text-center">
-        <div className="bg-[#EFFFF0] p-6 rounded-full mb-6">
-          <HeartIcon className="text-[#58C85A] w-12 h-12" />
+        <div className="bg-secondary p-6 rounded-full mb-6">
+          <HeartIcon className="text-primary w-12 h-12" />
         </div>
-        <h2 className="text-2xl font-bold text-[#222222] mb-3">기록이 완료되었습니다.</h2>
-        <p className="text-sm text-[#555555] leading-relaxed">
+        <h2 className="text-2xl font-bold text-foreground mb-3">기록이 완료되었습니다.</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
           선생님의 정서 데이터는 익명화되어<br />전국 교사 정서 통계 분석에 활용됩니다.
         </p>
       </PageContainer>
@@ -76,8 +76,8 @@ export default function CheckInPage() {
 
       <div className="p-4 space-y-6 pb-24">
         <div>
-          <h2 className="text-xl font-bold text-[#222222] mb-1">오늘 마음 온도는 어떠신가요?</h2>
-          <p className="text-sm text-[#555555]">선생님의 하루를 가볍게 골라주세요.</p>
+          <h2 className="text-xl font-bold text-foreground mb-1">오늘 마음 온도는 어떠신가요?</h2>
+          <p className="text-sm text-muted-foreground">선생님의 하루를 가볍게 골라주세요.</p>
         </div>
 
         <div className="space-y-3">
@@ -87,10 +87,10 @@ export default function CheckInPage() {
               onClick={() => setSelectedStatus(opt.label)}
               className={cn(
                 "transition-all duration-200 cursor-pointer border",
-                selectedStatus === opt.label ? "border-[#58C85A] shadow-sm bg-[#EFFFF0]" : "border-[#E5F5E1] bg-white"
+                selectedStatus === opt.label ? "border-primary shadow-sm bg-secondary" : "border-border bg-white"
               )}
             >
-              <div className="text-base font-bold text-[#222222]">{opt.label}</div>
+              <div className="text-base font-bold text-foreground">{opt.label}</div>
             </SoftCard>
           ))}
         </div>
@@ -98,7 +98,7 @@ export default function CheckInPage() {
         {selectedStatus && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div>
-              <h3 className="font-bold mb-3 text-sm text-[#222222]">오늘 마음을 가장 많이 차지한 게 무엇인가요?</h3>
+              <h3 className="font-bold mb-3 text-sm text-foreground">오늘 마음을 가장 많이 차지한 게 무엇인가요?</h3>
               <div className="flex flex-wrap gap-2">
                 {TAGS.map(tag => (
                   <button
@@ -107,8 +107,8 @@ export default function CheckInPage() {
                     className={cn(
                       "px-3 py-1.5 rounded-full text-xs font-medium border transition-all",
                       selectedTags.includes(tag)
-                        ? "bg-[#58C85A] text-white border-[#58C85A] shadow-sm"
-                        : "bg-white text-[#777777] border-[#E5F5E1]"
+                        ? "bg-primary text-white border-primary shadow-sm"
+                        : "bg-white text-muted-foreground border-border"
                     )}
                   >
                     {tag}
@@ -118,18 +118,18 @@ export default function CheckInPage() {
             </div>
 
             <div>
-              <h3 className="font-bold mb-3 text-sm text-[#222222]">기억하고 싶은 메모가 있다면 남겨주세요. (선택)</h3>
+              <h3 className="font-bold mb-3 text-sm text-foreground">기억하고 싶은 메모가 있다면 남겨주세요. (선택)</h3>
               <textarea
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
                 placeholder="예: 학부모 상담 후 계속 마음이 불편했다, 아이들이 수업에 적극적이어서 기뻤다 등"
-                className="w-full p-4 rounded-xl border border-[#E5F5E1] bg-white text-sm min-h-[120px] resize-none focus:ring-1 focus:ring-[#8EEA7A] outline-none placeholder:text-neutral-300"
+                className="w-full p-4 rounded-xl border border-border bg-white text-sm min-h-[120px] resize-none focus:ring-1 focus:ring-primary outline-none placeholder:text-neutral-300"
               />
             </div>
 
             <button
               onClick={handleSubmit}
-              className="w-full py-4 bg-[#222222] text-white rounded-xl font-bold text-lg hover:bg-[#333333] transition-colors shadow-md"
+              className="w-full py-4 bg-primary text-white rounded-xl font-bold text-lg hover:bg-primary/90 transition-colors shadow-md"
             >
               기록 완료하기
             </button>
