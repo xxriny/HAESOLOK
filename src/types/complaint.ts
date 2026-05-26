@@ -11,10 +11,12 @@ export interface ComplaintRecord {
   memo?: string;
   publicDataContext?: {
     schoolLevel: string;
-    region: string;
-    schedule: string;
+    region?: string;
+    schoolName?: string;        // NEIS 학교명
+    schedule: string;           // 학사일정 (NEIS 실시간 or Mock)
     scale: string;
     policyKeywords: string[];
+    isRealSchedule?: boolean;   // 나이스 실시간 데이터 여부
   };
   status: ComplaintStatus;
 }

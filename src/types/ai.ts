@@ -1,6 +1,8 @@
 export interface AIGuideResponse {
   classification: string;
-  riskLevel: "낮음" | "보통" | "높음";
+  riskLevel: "low" | "medium" | "high";
+  emotionEscalation?: "low" | "medium" | "high";
+  summary?: string;
   principles: string[];
   draftResponse: string;
   nextActions: string[];
@@ -9,6 +11,8 @@ export interface AIGuideResponse {
 
 export interface AIWeeklyReportResponse {
   summary: string;
+  insight?: string;
+  recommendation?: string;
   recommendedCareType?: "breathing" | "quote" | "routine";
 }
 
@@ -17,4 +21,4 @@ export interface AICareRecommendationResponse {
   headline: string;
   recommendations: string[];
   disclaimer: string;
-}
+}
