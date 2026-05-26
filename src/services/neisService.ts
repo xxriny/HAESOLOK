@@ -34,26 +34,32 @@ export async function searchSchools(
   schoolLevel?: string
 ): Promise<NeisSchoolRow[]> {
   const apiKey = process.env.NEIS_API_KEY;
-  if (!apiKey) return [];
 
   const params = new URLSearchParams({
-    KEY: apiKey,
     Type: "json",
     pIndex: "1",
     pSize: "10",
     SCHUL_NM: schoolName,
   });
+  if (apiKey) params.append("KEY", apiKey);
   if (schoolLevel) params.append("SCHUL_KND_SC_NM", schoolLevel);
 
   try {
-    const res = await fetch(`${NEIS_BASE_URL}/schoolInfo?${params.toString()}`);
-    if (!res.ok) return [];
+    const url = `${NEIS_BASE_URL}/schoolInfo?${params.toString()}`;
+    console.log("NEIS Request URL:", url);
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.error("NEIS API Error:", res.status, res.statusText);
+      return [];
+    }
     const data = await res.json();
+    console.log("NEIS Response Data:", JSON.stringify(data).substring(0, 150) + "...");
 
     // 데이터 없을 때 RESULT만 반환되는 경우
     if (data.RESULT) return [];
     return data.schoolInfo?.[1]?.row ?? [];
-  } catch {
+  } catch (error) {
+    console.error("NEIS Fetch Error:", error);
     return [];
   }
 }
@@ -68,10 +74,8 @@ export async function getSchoolSchedule(
   date: string // YYYYMMDD
 ): Promise<NeisScheduleRow[]> {
   const apiKey = process.env.NEIS_API_KEY;
-  if (!apiKey) return getMockSchedule();
 
   const params = new URLSearchParams({
-    KEY: apiKey,
     Type: "json",
     pIndex: "1",
     pSize: "20",
@@ -79,6 +83,7 @@ export async function getSchoolSchedule(
     SD_SCHUL_CODE: schoolCode,
     AA_YMD: date,
   });
+  if (apiKey) params.append("KEY", apiKey);
 
   try {
     const res = await fetch(`${NEIS_BASE_URL}/SchoolSchedule?${params.toString()}`);
