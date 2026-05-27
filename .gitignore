@@ -48,3 +48,14 @@ yarn-error.log*
 .idea/
 *.swp
 *.swo
+
+# 테스트 아티팩트
+response.json
+dev_output.log
+dev_error.log
+
+# Xenova 모델 캐시 (자동 다운로드)
+.cache/
+
+# 교육활동 보호 매뉴얼 원본 데이터 (용량 큼)
+src/data/edu_protection_manual/raw_data/
