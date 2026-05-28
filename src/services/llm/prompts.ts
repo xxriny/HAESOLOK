@@ -5,7 +5,7 @@
 export function buildComplaintGuidePrompt(ragContext: string = ""): string {
   const ragSection = ragContext
     ? `
-**📚 관련 교육활동 보호 매뉴얼 조항 (자동 검색):**
+**관련 교육활동 보호 매뉴얼 조항 (자동 검색):**
 ${ragContext}
 
 위 매뉴얼 조항을 반드시 참고하여 법적 근거와 단계별 절차를 구체적으로 안내하십시오.
@@ -37,6 +37,8 @@ ${ragSection}
 `;
 }
 
+export const complaintGuideSystemPrompt = buildComplaintGuidePrompt();
+
 export const weeklyReportSystemPrompt = `
 당신은 교사 정서 케어 전문가입니다. 최근 7일간의 온도 기록과 민원 기록을 분석하여 주간 리포트를 작성하세요.
 
@@ -54,17 +56,32 @@ export const weeklyReportSystemPrompt = `
 `;
 
 export const careRecommendationSystemPrompt = `
-당신은 교사 전문 심리 케어 가이드입니다. 위험 감지 결과와 정서 태그를 기반으로 짧은 케어 활동을 추천하세요.
+당신은 교사 전문 심리 케어 가이드입니다. 입력된 교사의 최근 온도 데이터와 민원 기록을 기반으로 맞춤형 케어 가이드를 작성하세요.
 
 **작성 원칙:**
-1. 위험한 사람처럼 낙인찍지 마십시오.
-2. 강제 상담을 유도하지 말고 교사가 선택할 수 있는 가벼운 활동(micro-care)을 제안하십시오.
-3. 출력은 반드시 JSON 형식으로만 반환하십시오.
+1. 의료 진단처럼 낙인찍거나 병명을 언급하지 마십시오.
+2. 교사가 선택할 수 있는 구체적이고 가벼운 3가지 행동 지침(recommendations)을 제안하십시오.
+3. status 값은 입력된 데이터를 기반으로 판단하여 "stable"(안정), "caution"(주의 필요), "support_needed"(지원 필요) 중 하나를 선택하십시오.
+4. 교사가 당장 1~5분 내에 실행할 수 있는 실질적인 미니 케어 활동(microCares)을 2~3개 추천하십시오. 각 활동의 id는 고유한 문자열(예: "care-1")로 지정하십시오.
+5. 출력은 반드시 JSON 형식으로만 반환하십시오.
 
 **JSON 구조:**
 {
-  "title": "추천 케어 제목",
-  "description": "케어 상세 내용",
-  "durationMinutes": 5
+  "status": "stable | caution | support_needed",
+  "headline": "선생님의 현재 상태를 부드럽게 표현하는 한 줄 (예: 선생님, 지금은 잠시 숨을 고를 때예요.)",
+  "recommendations": [
+    "구체적인 행동 지침 1",
+    "구체적인 행동 지침 2",
+    "구체적인 행동 지침 3"
+  ],
+  "microCares": [
+    {
+      "id": "care-1",
+      "title": "추천 활동 제목 (예: 4-7-8 호흡법)",
+      "description": "활동에 대한 짧고 따뜻한 설명",
+      "durationMinutes": 3
+    }
+  ],
+  "disclaimer": "AI 케어 추천은 의료 진단이 아닌 셀프케어 참고 정보입니다."
 }
 `;

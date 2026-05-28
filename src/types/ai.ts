@@ -20,5 +20,11 @@ export interface AICareRecommendationResponse {
   status: "stable" | "caution" | "support_needed";
   headline: string;
   recommendations: string[];
+  microCares: {
+    id: string;
+    title: string;
+    description: string;
+    durationMinutes: number;
+  }[];
   disclaimer: string;
 }

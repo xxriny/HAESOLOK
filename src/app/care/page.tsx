@@ -7,28 +7,58 @@ import { calculateRiskStatus } from "@/lib/risk";
 import { getTemperatures, getComplaints } from "@/lib/storage";
 import { useEffect, useState } from "react";
 import { RiskStatus } from "@/types/care";
-import { MOCK_CARE_CONTENTS, MOCK_COUNSELING_CENTERS } from "@/data/mockCareContents";
-import { AlertCircle, CheckCircle2, ShieldAlert, Info } from "lucide-react";
+import { AICareRecommendationResponse } from "@/types/ai";
+import { MOCK_COUNSELING_CENTERS } from "@/data/mockCareContents";
+import { AlertCircle, CheckCircle2, ShieldAlert, Info, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getFallbackByKind } from "@/services/llm/mockLlmFallback";
 
 export default function CarePage() {
   const [status, setStatus] = useState<RiskStatus>("stable");
+  const [headline, setHeadline] = useState<string>("선생님의 마음은 지금 평온한 상태예요.");
   const [reasons, setReasons] = useState<string[]>([]);
+  const [microCares, setMicroCares] = useState<AICareRecommendationResponse["microCares"]>([]);
   const [showCounseling, setShowCounseling] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const temps = getTemperatures();
     const complaints = getComplaints();
-    const result = calculateRiskStatus(temps, complaints);
+    const localResult = calculateRiskStatus(temps, complaints);
+    
+    const fallback = getFallbackByKind("care-recommendation") as AICareRecommendationResponse;
 
-    // If no data, show a default stable state for better UX
-    if (temps.length === 0) {
-      setStatus("stable");
-      setReasons(["최근 기록된 온도가 없어 안정된 상태로 표시됩니다."]);
-    } else {
-      setStatus(result.status);
-      setReasons(result.reasons.length > 0 ? result.reasons : ["최근 기록된 온도에서 특이사항이 발견되지 않았습니다."]);
+    // Initial local fallback state
+    setStatus(localResult.status);
+
+    if (temps.length === 0 && complaints.length === 0) {
+      setReasons(["최근 기록된 데이터가 없어 안정된 상태로 표시됩니다."]);
+      setMicroCares(fallback.microCares);
+      setIsLoading(false);
+      return;
     }
+
+    // Call LLM API
+    fetch("/api/ai/care-recommendation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ temperatures: temps, complaints }),
+    })
+      .then((res) => res.json())
+      .then((data: AICareRecommendationResponse) => {
+        setStatus(data.status);
+        setHeadline(data.headline);
+        setReasons(data.recommendations);
+        setMicroCares(data.microCares || fallback.microCares);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        // Fallback to local logic on error
+        setStatus(localResult.status);
+        setReasons(localResult.reasons.length > 0 ? localResult.reasons : ["최근 기록된 데이터에서 특이사항이 발견되지 않았습니다."]);
+        setMicroCares(fallback.microCares);
+        setIsLoading(false);
+      });
   }, []);
 
   const StatusIcon = {
@@ -58,7 +88,7 @@ export default function CarePage() {
         {/* Title */}
         <div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
-            {status === "stable" ? "선생님의 마음은 지금 평온한 상태예요." : "선생님, 지금은 나를 조금 더 돌봐야 할 때예요."}
+            {isLoading ? "분석 중..." : headline}
           </h1>
           <p className="text-muted-foreground">
             최근 선생님의 정서 기록을 바탕으로 분석한 맞춤형 케어 가이드입니다.
@@ -67,38 +97,48 @@ export default function CarePage() {
 
         {/* Current status card */}
         <SoftCard className={cn("flex items-start gap-4 border", statusColor)}>
-          <div className={cn("p-3 rounded-full", statusColor.split(" ")[0], statusColor.split(" ")[1])}>
-            <StatusIcon size={28} />
+          <div className={cn("p-3 rounded-full flex items-center justify-center", statusColor.split(" ")[0], statusColor.split(" ")[1])}>
+            {isLoading ? <Loader2 size={28} className="animate-spin" /> : <StatusIcon size={28} />}
           </div>
           <div className="flex-1">
             <h2 className="text-sm text-muted-foreground font-medium mb-1">나의 현재 상태</h2>
             <div className="text-xl font-bold text-foreground mb-3">{statusLabel}</div>
             <div className="space-y-1.5">
-              {reasons.map((r, i) => (
-                <div key={i} className="text-sm text-muted-foreground flex items-start gap-1.5">
-                  <span className="text-primary mt-0.5">•</span>
-                  <span>{r}</span>
-                </div>
-              ))}
+              {isLoading ? (
+                <div className="text-sm text-muted-foreground">AI가 최근 데이터를 바탕으로 맞춤형 케어 가이드를 작성하고 있습니다...</div>
+              ) : (
+                reasons.map((r, i) => (
+                  <div key={i} className="text-sm text-muted-foreground flex items-start gap-1.5">
+                    <span className={cn("mt-0.5", statusColor.split(" ")[0])}>•</span>
+                    <span>{r}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </SoftCard>
 
-        {/* Level 1 micro-care */}
+        {/* Level 1 micro-care (Dynamic from LLM) */}
         <div>
-          <h2 className="text-lg font-bold text-foreground mb-3 px-1">지금 바로 할 수 있는 5분 케어</h2>
+          <h2 className="text-lg font-bold text-foreground mb-3 px-1">지금 바로 할 수 있는 맞춤형 5분 케어</h2>
           <div className="grid gap-3">
-            {MOCK_CARE_CONTENTS.map(care => (
-              <SoftCard key={care.id} className="flex justify-between items-center group cursor-pointer hover:border-primary">
-                <div>
-                  <h3 className="font-bold text-foreground text-sm mb-1">{care.title}</h3>
-                  <p className="text-xs text-muted-foreground line-clamp-1">{care.description}</p>
-                </div>
-                <div className="text-[10px] font-bold text-primary bg-secondary px-2 py-1 rounded-md shrink-0">
-                  {care.durationMinutes}분
-                </div>
+            {isLoading ? (
+              <SoftCard className="flex justify-center items-center py-8">
+                <Loader2 size={24} className="animate-spin text-muted-foreground" />
               </SoftCard>
-            ))}
+            ) : (
+              microCares.map(care => (
+                <SoftCard key={care.id} className="flex justify-between items-center group cursor-pointer hover:border-primary">
+                  <div className="pr-4">
+                    <h3 className="font-bold text-foreground text-sm mb-1">{care.title}</h3>
+                    <p className="text-xs text-muted-foreground">{care.description}</p>
+                  </div>
+                  <div className="text-[10px] font-bold text-primary bg-secondary px-2 py-1 rounded-md shrink-0">
+                    {care.durationMinutes}분
+                  </div>
+                </SoftCard>
+              ))
+            )}
           </div>
         </div>
 
@@ -147,4 +187,4 @@ export default function CarePage() {
       </div>
     </PageContainer>
   );
-}
+}

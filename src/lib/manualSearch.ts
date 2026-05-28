@@ -39,7 +39,6 @@ async function ensureInit(): Promise<void> {
 
   _initPromise = (async () => {
     const path = await import("path");
-    const { fileURLToPath } = await import("url");
 
     // ESM-safe __dirname
     const ROOT = process.cwd();

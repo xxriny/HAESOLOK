@@ -9,6 +9,7 @@ import { getProfile, getTemperatures, getComplaints } from "@/lib/storage";
 import { useEffect, useState } from "react";
 import { TeacherProfile } from "@/types/teacher";
 import { detectRisk } from "@/lib/risk";
+import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -163,9 +164,5 @@ export default function DashboardPage() {
       </div>
     </PageContainer>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
 }
 

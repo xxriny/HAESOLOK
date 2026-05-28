@@ -35,24 +35,35 @@ async function callOpenAi(systemPrompt: string, userPrompt: string) {
 
 async function callGemini(systemPrompt: string, userPrompt: string) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.error("GEMINI_API_KEY is missing");
+    return null;
+  }
 
   const model = process.env.GEMINI_MODEL ?? "gemini-1.5-flash";
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-    {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  
+  try {
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }],
         generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
       }),
-    }
-  );
+    });
 
-  if (!response.ok) return null;
-  const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text as string | undefined;
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`Gemini API Error (${response.status}):`, errText);
+      return null;
+    }
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text as string | undefined;
+  } catch (error) {
+    console.error("Gemini Fetch Exception:", error);
+    return null;
+  }
 }
 
 async function callAnthropic(systemPrompt: string, userPrompt: string) {
@@ -101,4 +112,4 @@ export async function generateJsonWithLlm<T>(params: {
   } catch {
     return params.fallback;
   }
-}
+}
