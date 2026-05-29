@@ -38,7 +38,7 @@ export default function TemperaturePage() {
               <TemperatureLineChart />
             </div>
             <div className="mt-4 border-t border-border pt-3 space-y-1.5">
-              <ExampleDataNotice message="위 그래프는 MVP 시연을 위한 예시 데이터가 포함되어 있습니다." />
+
               <div className="flex items-start gap-1.5 text-[10px] text-muted-foreground">
                 <Info size={12} className="shrink-0 mt-0.5" />
                 <p>

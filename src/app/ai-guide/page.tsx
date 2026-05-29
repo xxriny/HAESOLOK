@@ -6,7 +6,7 @@ import { SoftCard } from "@/components/cards/SoftCard";
 import { MOCK_AI_GUIDE } from "@/data/mockAiGuide";
 import { getComplaints } from "@/lib/storage";
 import { AIGuideResponse } from "@/types/ai";
-import { Info, ShieldCheck, AlertTriangle, CheckSquare, Database, Bot, Sparkles, Copy, CheckCircle2, ChevronRight, FileText } from "lucide-react";
+import { ShieldCheck, AlertTriangle, CheckSquare, Database, Bot, Sparkles, Copy, CheckCircle2, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 

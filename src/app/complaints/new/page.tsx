@@ -224,7 +224,7 @@ export default function NewComplaintPage() {
         </p>
       </div>
 
-      <div className="fixed bottom-0 left-0 w-full max-w-[430px] p-4 bg-white border-t border-border left-1/2 -translate-x-1/2 pb-8">
+      <div className="sticky bottom-0 z-20 w-full p-4 bg-white border-t border-border mt-auto pb-8">
         <button
           onClick={handleSubmit}
           disabled={!content.trim()}
