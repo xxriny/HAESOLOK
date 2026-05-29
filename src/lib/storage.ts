@@ -54,3 +54,10 @@ export const updateComplaintStatus = (id: string, status: "기록됨" | "AI 가�
     localStorage.setItem(StorageKeys.COMPLAINTS, JSON.stringify(complaints));
   }
 };
+
+export const clearStorage = () => {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(StorageKeys.PROFILE);
+  localStorage.removeItem(StorageKeys.TEMPERATURES);
+  localStorage.removeItem(StorageKeys.COMPLAINTS);
+};

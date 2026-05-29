@@ -4,12 +4,17 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { SoftCard } from "@/components/cards/SoftCard";
 import { ExampleDataNotice } from "@/components/cards/ExampleDataNotice";
 import { useRouter } from "next/navigation";
-import { Heart, ShieldAlert, Sparkles, TrendingDown } from "lucide-react";
+import { Heart, ShieldAlert, Sparkles, TrendingDown, CalendarDays, Loader2, User } from "lucide-react";
 import { getProfile, getTemperatures, getComplaints } from "@/lib/storage";
 import { useEffect, useState } from "react";
 import { TeacherProfile } from "@/types/teacher";
 import { detectRisk } from "@/lib/risk";
 import { cn } from "@/lib/utils";
+
+interface ScheduleItem {
+  AA_YMD: string;
+  EVENT_NM: string;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -18,6 +23,8 @@ export default function DashboardPage() {
   const [riskStatus, setRiskStatus] = useState<string>("stable");
   const [avg7, setAvg7] = useState<number | null>(null);
   const [change, setChange] = useState<number | null>(null);
+  const [weeklySchedule, setWeeklySchedule] = useState<ScheduleItem[]>([]);
+  const [isScheduleLoading, setIsScheduleLoading] = useState(false);
 
   useEffect(() => {
     const p = getProfile();
@@ -37,6 +44,45 @@ export default function DashboardPage() {
     setAvg7(analysis.avg7);
     if (analysis.avg7 !== null && analysis.prevAvg7 !== null) {
       setChange(analysis.avg7 - analysis.prevAvg7);
+    }
+
+    // Fetch Weekly Schedule
+    if (p.educationOfficeCode && p.schoolCode) {
+      setIsScheduleLoading(true);
+      const curr = new Date();
+      const day = curr.getDay();
+      const first = curr.getDate() - day + (day === 0 ? -6 : 1);
+      
+      const formatYMD = (d: Date) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const date = String(d.getDate()).padStart(2, '0');
+        return `${year}${month}${date}`;
+      };
+
+      const monday = new Date(curr.getFullYear(), curr.getMonth(), first);
+      const friday = new Date(curr.getFullYear(), curr.getMonth(), first + 4);
+      const startDate = formatYMD(monday);
+      const endDate = formatYMD(friday);
+
+      fetch("/api/neis/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          educationOfficeCode: p.educationOfficeCode,
+          schoolCode: p.schoolCode,
+          startDate,
+          endDate
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.schedules) {
+            setWeeklySchedule(data.schedules);
+          }
+        })
+        .catch(err => console.error("Failed to fetch schedule:", err))
+        .finally(() => setIsScheduleLoading(false));
     }
   }, [router]);
 
@@ -58,13 +104,26 @@ export default function DashboardPage() {
     }
   };
 
+  const formatScheduleDate = (ymd: string) => {
+    if (!ymd || ymd.length !== 8) return "";
+    const month = parseInt(ymd.substring(4, 6), 10);
+    const day = parseInt(ymd.substring(6, 8), 10);
+    return `${month}/${day}`;
+  };
+
   return (
     <PageContainer>
       <div className="p-5 pb-8 space-y-6">
-        <div className="pt-2">
+        <div className="pt-2 flex justify-between items-start">
           <h1 className="text-2xl font-bold text-foreground">
             선생님의 하루를<br />기록하고 지켜드릴게요.
           </h1>
+          <button
+            onClick={() => router.push("/profile")}
+            className="p-2.5 bg-white border border-border rounded-full shadow-sm text-primary hover:bg-secondary transition-colors"
+          >
+            <User size={24} />
+          </button>
         </div>
 
         {/* 1. Daily temperature check-in card */}
@@ -85,6 +144,37 @@ export default function DashboardPage() {
                 30초 체크인 시작하기
               </button>
             </>
+          )}
+        </SoftCard>
+
+        {/* Weekly Schedule Card */}
+        <SoftCard>
+          <div className="flex items-center gap-2 mb-3">
+            <CalendarDays className="text-primary" size={18} />
+            <h2 className="font-bold text-foreground">
+              이번 주 학사일정 {profile.schoolName && <span className="text-sm text-muted-foreground font-normal ml-1">({profile.schoolName})</span>}
+            </h2>
+          </div>
+          
+          {(!profile.educationOfficeCode || !profile.schoolCode) ? (
+            <div className="text-sm text-muted-foreground bg-secondary/50 p-3 rounded-lg border border-border">
+              온보딩에서 학교를 등록하면 나이스(NEIS) 학사일정을 불러올 수 있습니다.
+            </div>
+          ) : isScheduleLoading ? (
+            <div className="flex justify-center py-4">
+              <Loader2 size={20} className="animate-spin text-muted-foreground" />
+            </div>
+          ) : weeklySchedule.length > 0 ? (
+            <ul className="space-y-2">
+              {weeklySchedule.map((item, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm">
+                  <span className="text-primary font-bold min-w-[36px]">{formatScheduleDate(item.AA_YMD)}</span>
+                  <span className="text-foreground">{item.EVENT_NM}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-sm text-muted-foreground">이번 주 등록된 학사일정이 없습니다.</div>
           )}
         </SoftCard>
 
@@ -165,4 +255,4 @@ export default function DashboardPage() {
     </PageContainer>
   );
 }
-
+
