@@ -32,6 +32,13 @@ export const saveTemperature = (record: TemperatureRecord) => {
   localStorage.setItem(StorageKeys.TEMPERATURES, JSON.stringify(temps));
 };
 
+export const deleteTemperature = (id: string) => {
+  if (typeof window === "undefined") return;
+  const temps = getTemperatures();
+  const newTemps = temps.filter((t) => t.id !== id);
+  localStorage.setItem(StorageKeys.TEMPERATURES, JSON.stringify(newTemps));
+};
+
 export const getComplaints = (): ComplaintRecord[] => {
   if (typeof window === "undefined") return [];
   const data = localStorage.getItem(StorageKeys.COMPLAINTS);

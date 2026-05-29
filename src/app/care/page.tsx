@@ -4,14 +4,15 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { SoftCard } from "@/components/cards/SoftCard";
 import { calculateRiskStatus } from "@/lib/risk";
-import { getTemperatures, getComplaints } from "@/lib/storage";
+import { getTemperatures, getComplaints, deleteTemperature } from "@/lib/storage";
 import { useEffect, useState } from "react";
 import { RiskStatus } from "@/types/care";
 import { AICareRecommendationResponse } from "@/types/ai";
 import { MOCK_COUNSELING_CENTERS } from "@/data/mockCareContents";
-import { AlertCircle, CheckCircle2, ShieldAlert, Info, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, ShieldAlert, Info, Loader2, History, Heart, Trash2, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getFallbackByKind } from "@/services/llm/mockLlmFallback";
+import { TemperatureRecord } from "@/types/temperature";
 
 export default function CarePage() {
   const [status, setStatus] = useState<RiskStatus>("stable");
@@ -20,12 +21,17 @@ export default function CarePage() {
   const [microCares, setMicroCares] = useState<AICareRecommendationResponse["microCares"]>([]);
   const [showCounseling, setShowCounseling] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [pastTemperatures, setPastTemperatures] = useState<TemperatureRecord[]>([]);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
   useEffect(() => {
     const temps = getTemperatures();
     const complaints = getComplaints();
-    const localResult = calculateRiskStatus(temps, complaints);
     
+    // Set past temperatures, sorted by date (newest first)
+    setPastTemperatures([...temps].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+
+    const localResult = calculateRiskStatus(temps, complaints);
     const fallback = getFallbackByKind("care-recommendation") as AICareRecommendationResponse;
 
     // Initial local fallback state
@@ -60,6 +66,14 @@ export default function CarePage() {
         setIsLoading(false);
       });
   }, []);
+
+  const handleDeleteRecord = (id: string) => {
+    if (confirm("이 기록을 정말 삭제하시겠습니까?")) {
+      deleteTemperature(id);
+      setPastTemperatures(prev => prev.filter(record => record.id !== id));
+      // Optionally, we could recalculate the risk status here, but for now just updating the list is fine.
+    }
+  };
 
   const StatusIcon = {
     stable: CheckCircle2,
@@ -177,6 +191,23 @@ export default function CarePage() {
           </SoftCard>
         )}
 
+        {/* Past Emotion Records Summary/Button */}
+        <SoftCard 
+          className="flex justify-between items-center cursor-pointer hover:border-primary transition-colors"
+          onClick={() => setIsHistoryModalOpen(true)}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
+              <History className="text-primary" size={20} />
+            </div>
+            <div>
+              <h2 className="font-bold text-foreground">나의 감정 기록장</h2>
+              <p className="text-xs text-muted-foreground">총 {pastTemperatures.length}개의 기록이 있습니다.</p>
+            </div>
+          </div>
+          <ChevronRight className="text-muted-foreground" size={20} />
+        </SoftCard>
+
         <div className="flex items-start gap-1.5 text-[10px] text-muted-foreground px-1 pt-4">
           <Info size={14} className="shrink-0 mt-0.5" />
           <p>
@@ -185,6 +216,61 @@ export default function CarePage() {
         </div>
 
       </div>
+
+      {/* Full-screen History Modal */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 z-50 w-full max-w-[430px] mx-auto bg-background flex flex-col animate-in slide-in-from-bottom-full duration-300 shadow-2xl">
+          <div className="sticky top-0 z-10 flex items-center justify-between h-14 bg-secondary px-4 border-b border-border">
+            <h1 className="text-lg font-bold text-foreground">나의 감정 기록장</h1>
+            <button 
+              onClick={() => setIsHistoryModalOpen(false)}
+              className="p-2 -mr-2 text-foreground"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 pb-24">
+            <div className="grid gap-3">
+              {pastTemperatures.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                  <Heart size={40} className="mb-4 opacity-20" />
+                  <p className="text-sm">아직 기록된 마음 온도가 없습니다.</p>
+                </div>
+              ) : (
+                pastTemperatures.map((record) => (
+                  <SoftCard key={record.id} className="flex flex-col gap-3 relative pr-10">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-foreground">{record.date}</span>
+                      <div className="flex items-center gap-1 text-primary font-bold">
+                        <Heart size={16} fill="currentColor" />
+                        <span>{record.temperature}°C</span>
+                      </div>
+                    </div>
+                    {record.tags && record.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {record.tags.map((tag, idx) => (
+                          <span key={idx} className="text-[10px] bg-secondary text-primary px-2 py-0.5 rounded-md">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <button 
+                      onClick={() => handleDeleteRecord(record.id)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-rose-500 transition-colors"
+                      title="기록 삭제"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </SoftCard>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </PageContainer>
   );
 }
