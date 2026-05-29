@@ -2,8 +2,17 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { MOCK_MONTHLY_AVERAGE } from '@/data/mockTemperature';
+import { useEffect, useState } from 'react';
 
 export function MonthlyTemperatureChart() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return <div className="h-full w-full bg-neutral-100 animate-pulse rounded-xl" />;
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={MOCK_MONTHLY_AVERAGE} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
