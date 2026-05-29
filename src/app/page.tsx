@@ -22,7 +22,7 @@ export default function LandingPage() {
         <Heart size={48} className="text-primary" />
       </div>
 
-      <h1 className="text-4xl font-bold text-foreground mb-3 font-serif">
+      <h1 className="text-4xl font-bold text-foreground mb-3">
         해소록
       </h1>
       <p className="text-xl font-medium text-foreground mb-8 leading-tight">
@@ -34,7 +34,7 @@ export default function LandingPage() {
           교육 공공데이터와 AI를 활용해 교사의 민원 대응과 번아웃 조기 감지를 돕는 교사 보호 서비스
         </p>
         <p className="text-sm text-muted-foreground leading-relaxed italic">
-          "선생님 곁에서, 기록하고 지키고 쉬게 합니다."
+          &quot;선생님 곁에서, 기록하고 지키고 쉬게 합니다.&quot;
         </p>
       </div>
 
