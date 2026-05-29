@@ -10,16 +10,6 @@ const nextConfig = {
       "onnxruntime-node",
     ],
   },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // .node 바이너리 파일을 node-loader로 처리
-      config.module.rules.push({
-        test: /\.node$/,
-        loader: "node-loader",
-      });
-    }
-    return config;
-  },
 };
 
 export default nextConfig;
