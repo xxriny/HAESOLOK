@@ -107,9 +107,13 @@ export async function generateJsonWithLlm<T>(params: {
           ? await callOpenAi(params.systemPrompt, params.userPrompt)
           : await callAnthropic(params.systemPrompt, params.userPrompt);
 
-    if (!raw) return params.fallback;
+    if (!raw) {
+      console.warn("LLM returned empty or null raw response, falling back to mock.");
+      return params.fallback;
+    }
     return parseJsonFromText<T>(raw, params.fallback);
-  } catch {
+  } catch (error) {
+    console.error("Error in generateJsonWithLlm:", error);
     return params.fallback;
   }
 }

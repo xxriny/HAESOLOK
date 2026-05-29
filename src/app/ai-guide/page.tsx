@@ -170,7 +170,8 @@ export default function AIGuidePage() {
   if (!guide) return null;
 
   const { classification, riskLevel, summary, principles, nextActions, usedPublicData, basis } = guide;
-  const responsePlan = guide.responsePlan ?? guide.draftResponse ?? "";
+  const adminResponsePlan = guide.responsePlan ?? "";
+  const draftResponse = guide.draftResponse ?? "";
 
   return (
     <PageContainer className="bg-[#F6F2FF]">
@@ -235,7 +236,20 @@ export default function AIGuidePage() {
           </div>
         )}
 
-        {/* 3. Action Recommendations (Checklist) */}
+        {/* 3. Teacher's Administrative Response Plan */}
+        {(adminResponsePlan) && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 px-1">
+              <ShieldCheck size={16} className="text-[#8372A6]" />
+              <h3 className="font-bold text-sm text-[#3D2D66]">행정/실무 대응 방안 요약</h3>
+            </div>
+            <SoftCard className="bg-[#F9F9FB] border-[#EBE5FC] p-4 shadow-sm text-sm text-[#3D2D66] leading-relaxed font-medium">
+              {adminResponsePlan}
+            </SoftCard>
+          </div>
+        )}
+
+        {/* 4. Action Recommendations (Checklist) */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-1">
             <CheckSquare size={16} className="text-[#8372A6]" />
@@ -253,7 +267,7 @@ export default function AIGuidePage() {
           </SoftCard>
         </div>
 
-        {/* 4. Copyable Response Draft */}
+        {/* 5. Copyable Response Draft */}
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
@@ -269,9 +283,9 @@ export default function AIGuidePage() {
             </button>
           </div>
           <div className="bg-white p-5 rounded-2xl text-sm text-[#3D2D66] leading-relaxed border border-[#EBE5FC] shadow-sm relative group whitespace-pre-wrap font-medium">
-            {responsePlan}
+            {draftResponse || "생성된 답변 템플릿 초안이 없습니다."}
             
-            {/* Hover overlay for quick copy (Desktop mainly, but good to have) */}
+            {/* Hover overlay for quick copy */}
             <div 
               onClick={handleCopy}
               className="absolute inset-0 bg-[#8257E5]/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer rounded-2xl"
