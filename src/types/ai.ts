@@ -4,7 +4,9 @@ export interface AIGuideResponse {
   emotionEscalation?: "low" | "medium" | "high";
   summary?: string;
   principles: string[];
-  draftResponse: string;
+  basis?: string[];
+  responsePlan?: string;
+  draftResponse?: string;
   nextActions: string[];
   usedPublicData: string[];
 }
@@ -20,5 +22,11 @@ export interface AICareRecommendationResponse {
   status: "stable" | "caution" | "support_needed";
   headline: string;
   recommendations: string[];
+  microCares: {
+    id: string;
+    title: string;
+    description: string;
+    durationMinutes: number;
+  }[];
   disclaimer: string;
 }

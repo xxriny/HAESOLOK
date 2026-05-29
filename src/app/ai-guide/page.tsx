@@ -39,7 +39,9 @@ export default function AIGuidePage() {
       });
   }, []);
 
-  const { classification, riskLevel, principles, draftResponse, nextActions, usedPublicData } = guide;
+  const { classification, riskLevel, principles, nextActions, usedPublicData } = guide;
+  const responsePlan = guide.responsePlan ?? guide.draftResponse ?? "";
+  const basis = guide.basis ?? [];
 
   return (
     <PageContainer className="bg-secondary">
@@ -88,11 +90,28 @@ export default function AIGuidePage() {
           </ul>
         </SoftCard>
 
+        {basis.length > 0 && (
+          <SoftCard>
+            <div className="flex items-center gap-2 mb-3">
+              <Database size={18} className="text-primary" />
+              <h2 className="font-bold text-foreground">판단 근거</h2>
+            </div>
+            <ul className="space-y-2">
+              {basis.map((item, index) => (
+                <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <span className="text-primary mt-0.5 font-bold">•</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </SoftCard>
+        )}
+
         <SoftCard className="border-primary bg-secondary/50 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-          <h2 className="font-bold text-foreground mb-3 ml-2">답변 초안 (참고용)</h2>
+          <h2 className="font-bold text-foreground mb-3 ml-2">민원 대응 방안</h2>
           <div className="bg-white p-4 rounded-xl text-sm text-foreground leading-relaxed border border-border ml-2">
-            {draftResponse}
+            {responsePlan}
           </div>
         </SoftCard>
 
